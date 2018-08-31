@@ -3,7 +3,7 @@ if myHero.charName ~= "Fizz" then return end
 -- [ update ]
 do
       
-      local Version = 1
+      local Version = 2
       
       local Files = {
             Lua = {
@@ -484,7 +484,7 @@ function RightClick(pos)
 	DelayAction(ReturnCursor,0.05,{pos})
 end
 
-local Version,Author,LVersion = "v1","miragessee","8.16"
+local Version,Author,LVersion = "v2","miragessee","8.17"
 
 function Fizz:LoadMenu()
 	self.FizzMenu = MenuElement({type = MENU, id = "Fizz", name = "Mirage's Fizz", leftIcon = HeroIcon})
@@ -908,7 +908,7 @@ function Fizz:Combo()
 		if self.FizzMenu.Combo.UseRG:Value() then
 			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
 				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRG, FizzRG.targetRangeMin, FizzRG.delay, FizzRG.speed, FizzRG.radius, true)
-				if hitChance and hitChance >= 1 then
+				if hitChance and hitChance >= 2 then
 					self:CastRG(targetRG,aimPosition)
 				end
 			end
@@ -919,7 +919,7 @@ function Fizz:Combo()
 		if self.FizzMenu.Combo.UseRC:Value() then
 			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
 				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRC, FizzRC.targetRangeMin, FizzRC.delay, FizzRC.speed, FizzRC.radius, true)
-				if hitChance and hitChance >= 1 then
+				if hitChance and hitChance >= 2 then
 					self:CastRG(targetRG,aimPosition)
 				end
 			end
@@ -930,7 +930,7 @@ function Fizz:Combo()
 		if self.FizzMenu.Combo.UseR:Value() then
 			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
 				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
-				if hitChance and hitChance >= 1 then
+				if hitChance and hitChance >= 2 then
 					self:CastRG(targetRG,aimPosition)
 				end
 			end
@@ -945,13 +945,13 @@ function Fizz:Combo()
 				if GetDistance(myHero.pos,targetR.pos) > FizzRG.targetRangeMin then
 					RDMGX = RDmgGigalodon()
 				elseif GetDistance(myHero.pos,targetR.pos) > FizzRC.targetRangeMin then
-					RDMGX = RDmgGigalodon()
+					RDMGX = RDmgChomper()
 				else
 					RDMGX = RDmgGuppy()
 				end
 
 				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
-				if hitChance and hitChance >= 1 then
+				if hitChance and hitChance >= 2 then
 					self:CastRG(targetRG,aimPosition)
 				end
 			end
