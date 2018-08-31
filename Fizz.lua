@@ -3,7 +3,7 @@ if myHero.charName ~= "Fizz" then return end
 -- [ update ]
 do
       
-      local Version = 2
+      local Version = 3
       
       local Files = {
             Lua = {
@@ -484,7 +484,20 @@ function RightClick(pos)
 	DelayAction(ReturnCursor,0.05,{pos})
 end
 
-local Version,Author,LVersion = "v2","miragessee","8.17"
+function IsImmune(unit)
+  if type(unit) ~= "userdata" then error("{IsImmune}: bad argument #1 (userdata expected, got "..type(unit)..")") end
+  for i, buff in pairs(GetBuffs(unit)) do
+    if (buff.name == "KindredRNoDeathBuff" or buff.name == "UndyingRage") and GetPercentHP(unit) <= 10 then
+      return true
+    end
+    if buff.name == "VladimirSanguinePool" or buff.name == "JudicatorIntervention" then 
+      return true
+    end
+  end
+  return false
+end 
+
+local Version,Author,LVersion = "v3","miragessee","8.17"
 
 function Fizz:LoadMenu()
 	self.FizzMenu = MenuElement({type = MENU, id = "Fizz", name = "Mirage's Fizz", leftIcon = HeroIcon})
@@ -905,83 +918,101 @@ function Fizz:Combo()
 	local targetRG = GOS:GetTarget(FizzRG.targetRangeMax,"AP")
 
 	if targetRG and GetDistance(myHero.pos,targetRG.pos) > FizzRG.targetRangeMin then
-		if self.FizzMenu.Combo.UseRG:Value() then
-			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRG, FizzRG.targetRangeMin, FizzRG.delay, FizzRG.speed, FizzRG.radius, true)
-				if hitChance and hitChance >= 2 then
-					self:CastRG(targetRG,aimPosition)
+		if not IsImmune(targetRG) then
+			if self.FizzMenu.Combo.UseRG:Value() then
+				if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRG, FizzRG.targetRangeMax, FizzRG.delay, FizzRG.speed, FizzRG.radius, true)
+					if hitChance and hitChance >= 2 then
+						self:CastRG(targetRG,aimPosition)
+					end
 				end
 			end
 		end
 	end
 
 	if targetRC and GetDistance(myHero.pos,targetRC.pos) > FizzRC.targetRangeMin then
-		if self.FizzMenu.Combo.UseRC:Value() then
-			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRC, FizzRC.targetRangeMin, FizzRC.delay, FizzRC.speed, FizzRC.radius, true)
-				if hitChance and hitChance >= 2 then
-					self:CastRG(targetRG,aimPosition)
+		if not IsImmune(targetRC) then
+			if self.FizzMenu.Combo.UseRC:Value() then
+				if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetRC, FizzRC.targetRangeMax, FizzRC.delay, FizzRC.speed, FizzRC.radius, true)
+					if hitChance and hitChance >= 2 then
+						self:CastRG(targetRG,aimPosition)
+					end
 				end
 			end
 		end
 	end
 
 	if targetR then
-		if self.FizzMenu.Combo.UseR:Value() then
-			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
-				if hitChance and hitChance >= 2 then
-					self:CastRG(targetRG,aimPosition)
+		if not IsImmune(targetR) then
+			if self.FizzMenu.Combo.UseR:Value() then
+				if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
+					if hitChance and hitChance >= 2 then
+						self:CastRG(targetRG,aimPosition)
+					end
 				end
 			end
 		end
 	end
 
 	if targetR then
-		if self.FizzMenu.Combo.UseRK:Value() then
-			if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				local RDMGX
+		if not IsImmune(targetR) then
+			if self.FizzMenu.Combo.UseRK:Value() then
+				if IsReady(_R) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					local RDMGX 
 					
-				if GetDistance(myHero.pos,targetR.pos) > FizzRG.targetRangeMin then
-					RDMGX = RDmgGigalodon()
-				elseif GetDistance(myHero.pos,targetR.pos) > FizzRC.targetRangeMin then
-					RDMGX = RDmgChomper()
-				else
-					RDMGX = RDmgGuppy()
-				end
-
-				local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
-				if hitChance and hitChance >= 2 then
-					self:CastRG(targetRG,aimPosition)
+					if GetDistance(myHero.pos,targetR.pos) > FizzRG.targetRangeMin then
+						RDMGX = RDmgGigalodon()
+					elseif GetDistance(myHero.pos,targetR.pos) > FizzRC.targetRangeMin then
+						RDMGX = RDmgChomper()
+					else
+						RDMGX = RDmgGuppy()
+					end
+				
+					if targetR.health < RDMGX then
+						local hitChance, aimPosition = HPred:GetHitchance(myHero.pos, targetR, FizzR.range, FizzR.delay, FizzR.speed, FizzR.radius, true)
+						if hitChance and hitChance >= 1 then
+							self:CastRG(targetRG,aimPosition)
+						end
+					end
 				end
 			end
 		end
 	end	
 
 	if targetQ then
-		if self.FizzMenu.Combo.UseQ:Value() then
-			if IsReady(_Q) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				if ValidTarget(targetQ, FizzQ.range) then
-					LocalControlCastSpell(HK_Q,targetQ)
+		if not IsImmune(targetQ) then
+			if self.FizzMenu.Combo.UseQ:Value() then
+				if IsReady(_Q) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					if ValidTarget(targetQ, FizzQ.range) then
+						LocalControlCastSpell(HK_Q,targetQ)
+					end
 				end
 			end
 		end
 	end
 
 	if targetE then
-		if self.FizzMenu.Combo.UseE:Value() and GetSpellEName() == "FizzE" then
-			if IsReady(_E) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
-				if ValidTarget(targetE, FizzE.range) then
-					LocalControlCastSpell(HK_E,targetE)
+		if not IsImmune(targetE) then
+			if self.FizzMenu.Combo.UseE:Value() and GetSpellEName() == "FizzE" then
+				if IsReady(_E) and (self.Collision == false or self.CollisionSpellName == "YasuoWMovingWall") then
+					if ValidTarget(targetE, FizzE.range) then
+						LocalControlCastSpell(HK_E,targetE)
+					end
 				end
 			end
 		end
 	end
 
-	if self.FizzMenu.Combo.UseW:Value() then
-		if IsReady(_W) then
-			if ValidTarget(targetW, FizzW.range) then
-				LocalControlCastSpell(HK_W,targetW)
+	if targetW then
+		if not IsImmune(targetW) then
+			if self.FizzMenu.Combo.UseW:Value() then
+				if IsReady(_W) then
+					if ValidTarget(targetW, FizzW.range) then
+						LocalControlCastSpell(HK_W,targetW)
+					end
+				end
 			end
 		end
 	end
@@ -989,7 +1020,7 @@ end
 
 function Fizz:CastRG(target,RGcastPos)
 	if LocalGameTimer() - OnWaypoint(target).time > 0.05 and (LocalGameTimer() - OnWaypoint(target).time < 0.125 or LocalGameTimer() - OnWaypoint(target).time > 1.25) then
-		if GetDistance(myHero.pos,RGcastPos) <= FizzRG.targetRangeMax then
+		if ValidTarget(target, FizzRG.targetRangeMax) and GetDistance(myHero.pos,RGcastPos) <= FizzRG.targetRangeMax then
 			SetMovement(false)
 			Control.SetCursorPos(RGcastPos)
 			Control.KeyDown(HK_R)
