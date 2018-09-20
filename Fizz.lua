@@ -3,7 +3,7 @@ if myHero.charName ~= "Fizz" then return end
 -- [ update ]
 do
       
-      local Version = 3
+      local Version = 4
       
       local Files = {
             Lua = {
@@ -329,6 +329,8 @@ local QIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/a/a4/U
 local WIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/6/6d/Seastone_Trident.png"
 local EIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/9/9c/Playful.png"
 local RIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/c/ca/Chum_the_Waters.png"
+local BCIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/4/44/Bilgewater_Cutlass_item.png"
+local HGIcon = "https://vignette.wikia.nocookie.net/leagueoflegends/images/6/64/Hextech_Gunblade_item.png"
 local IS = {}
 local Spells = {
 	["Aatrox"] = {"AatroxE"},
@@ -456,6 +458,12 @@ function ProtobeltDMG() --3152
 	return damage
 end
 
+function GunbladeDMG() --3146
+    local level = myHero.levelData.lvl
+    local damage = ({175,180,184,189,193,198,203,207,212,216,221,225,230,235,239,244,248,253})[level] + 0.30 * myHero.ap
+	return damage
+end 
+
 function SetMovement(bool)
 	if _G.EOWLoaded then
 		EOW:SetMovements(bool)
@@ -497,7 +505,7 @@ function IsImmune(unit)
   return false
 end 
 
-local Version,Author,LVersion = "v3","miragessee","8.17"
+local Version,Author,LVersion = "v4","miragessee","8.18"
 
 function Fizz:LoadMenu()
 	self.FizzMenu = MenuElement({type = MENU, id = "Fizz", name = "Mirage's Fizz", leftIcon = HeroIcon})
@@ -521,10 +529,14 @@ function Fizz:LoadMenu()
 	self.FizzMenu.Combo:MenuElement({id = "UseRG", name = "Use R is only gigalodon damage", value = true, leftIcon = RIcon})
 	self.FizzMenu.Combo:MenuElement({id = "UseRK", name = "Use R enemy is killable", value = true, leftIcon = RIcon})
 	self.FizzMenu.Combo:MenuElement({id = "UseHP", name = "Use Hextech Probelt", value = true, leftIcon = HPIcon})
+	self.FizzMenu.Combo:MenuElement({id = "UseHP", name = "Use Hextech Probelt", value = true, leftIcon = HPIcon})
+	self.FizzMenu.Combo:MenuElement({id = "UseBC", name = "Use Bilgewater Cutlass", value = true, leftIcon = BCIcon})
+    self.FizzMenu.Combo:MenuElement({id = "UseHG", name = "Use Hextech Gunblade", value = true, leftIcon = HGIcon})
 
 	self.FizzMenu:MenuElement({id = "KillSteal", name = "KillSteal", type = MENU})
 	self.FizzMenu.KillSteal:MenuElement({id = "UseIgnite", name = "Use Ignite", value = true, leftIcon = IgniteIcon})
-    self.FizzMenu.KillSteal:MenuElement({id = "UseHP", name = "Use Hextech Probelt", value = true, leftIcon = HPIcon})
+	self.FizzMenu.KillSteal:MenuElement({id = "UseHP", name = "Use Hextech Probelt", value = true, leftIcon = HPIcon})
+	self.FizzMenu.KillSteal:MenuElement({id = "UseHG", name = "Use Hextech Gunblade", value = true, leftIcon = HPIcon})
 
 	self.FizzMenu:MenuElement({id = "AutoLevel", name = "AutoLevel", type = MENU})
 	self.FizzMenu.AutoLevel:MenuElement({id = "AutoLevel", name = "Only first W->E->Q then E->W->Q", value = true})
@@ -712,7 +724,18 @@ function Fizz:KillSteal()
 			for i,enemy in pairs(GetEnemyHeroes()) do
 				if ValidTarget(enemy, 850) and enemy.health + enemy.shieldAD < ProtobeltDMG() then
 					if myHero:GetSpellData(GetItemSlot(myHero, 3152)).currentCd == 0 then
-						Control.CastSpell(Item_HK[GetItemSlot(myHero, 3152)], target)
+						Control.CastSpell(Item_HK[GetItemSlot(myHero, 3152)], enemy)
+					end
+				end
+			end
+		end
+	end
+	if self.FizzMenu.KillSteal.UseHG:Value() then
+		if GetItemSlot(myHero, 3146) > 0 then
+			for i,enemy in pairs(GetEnemyHeroes()) do
+				if ValidTarget(enemy, 700) and enemy.health + enemy.shieldAD < GunbladeDMG() then
+					if myHero:GetSpellData(GetItemSlot(myHero, 3146)).currentCd == 0 then
+						Control.CastSpell(Item_HK[GetItemSlot(myHero, 3146)], enemy)
 					end
 				end
 			end
@@ -909,6 +932,26 @@ function Fizz:Combo()
 			end
 		end
 	end
+
+	local targetBC = GOS:GetTarget(550, "AP")
+    
+    if self.FizzMenu.Combo.UseBC:Value() then
+        if GetItemSlot(myHero, 3144) > 0 and ValidTarget(targetBC, 550) then
+            if myHero:GetSpellData(GetItemSlot(myHero, 3144)).currentCd == 0 then
+                Control.CastSpell(Item_HK[GetItemSlot(myHero, 3144)], targetBC)
+            end
+        end
+    end
+    
+    local targetHG = GOS:GetTarget(700, "AP")
+    
+    if self.FizzMenu.Combo.UseHG:Value() then
+        if GetItemSlot(myHero, 3146) > 0 and ValidTarget(targetHG, 700) then
+            if myHero:GetSpellData(GetItemSlot(myHero, 3146)).currentCd == 0 then
+                Control.CastSpell(Item_HK[GetItemSlot(myHero, 3146)], targetHG)
+            end
+        end
+    end
 
 	local targetQ = GOS:GetTarget(FizzQ.range,"AP")
 	local targetW = GOS:GetTarget(FizzW.range,"AP")
